@@ -1,4 +1,4 @@
-import {View, FlatList, StyleSheet} from 'react-native';
+import {View, FlatList, StyleSheet, ViewToken} from 'react-native';
 import React, {memo} from 'react';
 import {TypeToDoItem} from '../../redux/hooks';
 import Row from '../general/Row';
@@ -7,12 +7,18 @@ import {Colors, SCREEN} from '../../constants/general';
 import RNVectorIcons from '../general/RNVectorIcons';
 import EmptyState from '../general/EmptyState';
 import {getFormatedDateAndTime} from '../../utility';
+import {useSharedValue} from 'react-native-reanimated';
+import AnimatedListItem from './AnimatedListItem';
 
 const AllList = ({list}: {list: TypeToDoItem[]}) => {
+  const viewableItems = useSharedValue<ViewToken[]>([]);
   return (
     <FlatList
       showsVerticalScrollIndicator={false}
       data={list}
+      onViewableItemsChanged={({viewableItems: vItems}) => {
+        viewableItems.value = vItems;
+      }}
       style={styles.flatlistStyle}
       contentContainerStyle={styles.flatlistContainer}
       ListEmptyComponent={
@@ -22,8 +28,13 @@ const AllList = ({list}: {list: TypeToDoItem[]}) => {
           desc={'Add few tasks'}
         />
       }
-      renderItem={({item, index}: {item: TypeToDoItem; index: number}) => (
-        <LisItem key={`${index}`} item={item} />
+      renderItem={({item}: {item: TypeToDoItem; index: number}) => (
+        <AnimatedListItem
+          key={item.id}
+          viewableItems={viewableItems}
+          item={item}>
+          <LisItem item={item} />
+        </AnimatedListItem>
       )}
       keyExtractor={item => item.id.toString()}
     />

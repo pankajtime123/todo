@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React, {useRef} from 'react';
-import {Keyboard, StyleSheet, TextInput, View} from 'react-native';
+import {Keyboard, StyleSheet, TextInput, View, ViewToken} from 'react-native';
 
 import ToDoItem from '../components/TodoComponents/TodoItem';
 import ButtonComponent from '../components/general/ButtonComponent';
@@ -11,10 +11,12 @@ import Wrapper from '../components/general/Wrapper';
 import {useManageTasks} from '../redux/hooks';
 import {useNavigation} from '@react-navigation/native';
 import EmptyState from '../components/general/EmptyState';
-import Animated from 'react-native-reanimated';
+import Animated, {useSharedValue} from 'react-native-reanimated';
+import AnimatedListItem from '../components/TodoComponents/AnimatedListItem';
 
 const Home: React.FC = () => {
   const navigation = useNavigation();
+  const viewableItems = useSharedValue<ViewToken[]>([]);
   let isNewItem = useRef(true);
   const {
     tasks,
@@ -51,6 +53,9 @@ const Home: React.FC = () => {
         />
       </Row>
       <Animated.FlatList
+        onViewableItemsChanged={({viewableItems: vItems}) => {
+          viewableItems.value = vItems;
+        }}
         showsVerticalScrollIndicator={false}
         data={tasks}
         style={styles.flatlistStyle}
@@ -63,15 +68,19 @@ const Home: React.FC = () => {
           />
         }
         renderItem={({item, index}) => (
-          <ToDoItem
-            key={`${index}`}
-            item={item}
-            toggleDone={markCompleted}
-            deleteToDoItem={deleteToDoItem}
-            index={index}
-            editTodoItem={editTodoItem}
-            isNewItem={isNewItem}
-          />
+          <AnimatedListItem
+            key={item.id}
+            viewableItems={viewableItems}
+            item={item}>
+            <ToDoItem
+              item={item}
+              toggleDone={markCompleted}
+              deleteToDoItem={deleteToDoItem}
+              index={index}
+              editTodoItem={editTodoItem}
+              isNewItem={isNewItem}
+            />
+          </AnimatedListItem>
         )}
         keyExtractor={item => item.id.toString()}
       />
