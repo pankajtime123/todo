@@ -1,8 +1,9 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import {useDispatch, useSelector} from 'react-redux';
 import type {TypedUseSelectorHook} from 'react-redux';
 import type {RootState, AppDispatch} from './store';
 import {addTask, deleteTask, editTask, toggleDone} from './slices/tasksSlice';
-import {useState} from 'react';
+import {useCallback, useState} from 'react';
 
 export const useAppDispatch: () => AppDispatch = useDispatch;
 export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
@@ -45,18 +46,18 @@ export const useManageTasks = () => {
     setTextInput('');
   };
 
-  const markCompleted = (id: number): void => {
+  const markCompleted = useCallback((id: number): void => {
     dispatch(toggleDone(id));
-  };
+  }, []);
 
-  const deleteToDoItem = (id: number): void => {
+  const deleteToDoItem = useCallback((id: number): void => {
     dispatch(deleteTask(id));
-  };
+  }, []);
 
-  const editTodoItem = (index: number) => {
+  const editTodoItem = useCallback((index: number) => {
     setTextInput(tasks?.[index]?.text);
     setEditItem({...tasks?.[index], index});
-  };
+  }, []);
 
   return {
     tasks,

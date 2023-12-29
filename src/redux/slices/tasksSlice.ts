@@ -8,7 +8,7 @@ export const tasksSlice = createSlice({
   initialState: initialTasksState,
   reducers: {
     addTask: (state, action) => {
-      return [...state, action.payload];
+      return [action.payload, ...state];
     },
     toggleDone: (state, action) => {
       return state.map(item =>

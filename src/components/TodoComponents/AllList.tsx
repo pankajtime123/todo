@@ -1,10 +1,12 @@
 import {View, FlatList, StyleSheet} from 'react-native';
-import React from 'react';
+import React, {memo} from 'react';
 import {TypeToDoItem} from '../../redux/hooks';
 import Row from '../general/Row';
 import {RichText} from '../general/RichText';
-import {Colors} from '../../constants/general';
+import {Colors, SCREEN} from '../../constants/general';
 import RNVectorIcons from '../general/RNVectorIcons';
+import EmptyState from '../general/EmptyState';
+import {getFormatedDateAndTime} from '../../utility';
 
 const AllList = ({list}: {list: TypeToDoItem[]}) => {
   return (
@@ -13,6 +15,13 @@ const AllList = ({list}: {list: TypeToDoItem[]}) => {
       data={list}
       style={styles.flatlistStyle}
       contentContainerStyle={styles.flatlistContainer}
+      ListEmptyComponent={
+        <EmptyState
+          conStyle={{marginTop: SCREEN.sHeight * 0.2}}
+          title={'There is no tasks yet! '}
+          desc={'Add few tasks'}
+        />
+      }
       renderItem={({item, index}: {item: TypeToDoItem; index: number}) => (
         <LisItem key={`${index}`} item={item} />
       )}
@@ -21,7 +30,7 @@ const AllList = ({list}: {list: TypeToDoItem[]}) => {
   );
 };
 
-export default AllList;
+export default memo(AllList);
 
 const LisItem = ({item}: {item: TypeToDoItem}) => {
   const isDone = item?.done;
@@ -29,7 +38,7 @@ const LisItem = ({item}: {item: TypeToDoItem}) => {
   return (
     <View style={styles.listItem}>
       <Row styling={styles.listItemRow}>
-        <RichText.Medium color={Colors.PRIMARY_500}>
+        <RichText.Medium styling={styles.text} color={Colors.PRIMARY_20}>
           {item?.text}
         </RichText.Medium>
         <RNVectorIcons
@@ -41,7 +50,7 @@ const LisItem = ({item}: {item: TypeToDoItem}) => {
       </Row>
       <Row styling={styles.listItemRow}>
         {[
-          new Date(item?.time).toDateString(),
+          getFormatedDateAndTime(new Date(item?.time)),
           isDone ? 'completed' : 'active',
         ].map(value => {
           return (
@@ -66,4 +75,5 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   listItemRow: {justifyContent: 'space-between'},
+  text: {flex: 1},
 });

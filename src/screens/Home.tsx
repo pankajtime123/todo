@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import React from 'react';
-import {FlatList, Keyboard, StyleSheet, TextInput, View} from 'react-native';
+import React, {useRef} from 'react';
+import {Keyboard, StyleSheet, TextInput, View} from 'react-native';
 
 import ToDoItem from '../components/TodoComponents/TodoItem';
 import ButtonComponent from '../components/general/ButtonComponent';
@@ -10,9 +10,12 @@ import {Colors, SCREEN, ScreenNames} from '../constants/general';
 import Wrapper from '../components/general/Wrapper';
 import {useManageTasks} from '../redux/hooks';
 import {useNavigation} from '@react-navigation/native';
+import EmptyState from '../components/general/EmptyState';
+import Animated from 'react-native-reanimated';
 
 const Home: React.FC = () => {
   const navigation = useNavigation();
+  let isNewItem = useRef(true);
   const {
     tasks,
     addToDoItem,
@@ -22,6 +25,7 @@ const Home: React.FC = () => {
     textInput,
     editTodoItem,
   } = useManageTasks();
+
   return (
     <Wrapper>
       <Row styling={styles.heading}>
@@ -46,11 +50,18 @@ const Home: React.FC = () => {
           bouncy
         />
       </Row>
-      <FlatList
+      <Animated.FlatList
         showsVerticalScrollIndicator={false}
         data={tasks}
         style={styles.flatlistStyle}
         contentContainerStyle={styles.flatlistContainer}
+        ListEmptyComponent={
+          <EmptyState
+            conStyle={{marginTop: SCREEN.sHeight * 0.2}}
+            title={'There is no tasks yet! '}
+            desc={'Add few tasks'}
+          />
+        }
         renderItem={({item, index}) => (
           <ToDoItem
             key={`${index}`}
@@ -59,6 +70,7 @@ const Home: React.FC = () => {
             deleteToDoItem={deleteToDoItem}
             index={index}
             editTodoItem={editTodoItem}
+            isNewItem={isNewItem}
           />
         )}
         keyExtractor={item => item.id.toString()}
